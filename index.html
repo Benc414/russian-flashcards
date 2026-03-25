@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Russian Flashcards V2</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-2: rgba(30, 41, 59, 0.9);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #e5eefc;
+      --muted: #9fb0cb;
+      --accent: #7c3aed;
+      --accent-2: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 22px;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background:
+      radial-gradient(circle at top left, rgba(124,58,237,.20), transparent 28%),
+      radial-gradient(circle at top right, rgba(34,197,94,.15), transparent 22%),
+      linear-gradient(180deg, #020617 0%, #07111f 100%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { padding: 14px 14px calc(18px + var(--safe-bottom)); }
+    .app { max-width: 920px; margin: 0 auto; display: grid; gap: 14px; }
+    .glass { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .hero { padding: 18px; }
+    .topline { display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap: wrap; }
+    h1 { font-size: clamp(1.5rem, 3vw, 2.4rem); margin: 0; }
+    .sub { color: var(--muted); font-size: .98rem; line-height: 1.45; margin-top: 8px; }
+    .pillrow, .stats { display:flex; gap:8px; flex-wrap:wrap; margin-top: 12px; }
+    .pill, button, select, input { border-radius: 14px; border: 1px solid var(--line); background: rgba(15,23,42,.78); color: var(--text); }
+    .pill { padding: 8px 12px; font-size: .88rem; }
+    .stats .pill strong { color: white; }
+    .controls { padding: 14px; display:grid; gap: 10px; }
+    .row { display:grid; gap:10px; grid-template-columns: 1fr; }
+    @media (min-width: 760px) { .row.two { grid-template-columns: 1.25fr .9fr; } .row.three { grid-template-columns: repeat(3,1fr); } }
+    input, select, button { width: 100%; padding: 14px 16px; font-size: 16px; }
+    button { cursor: pointer; font-weight: 700; }
+    button.primary { background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(59,130,246,.95)); border: none; }
+    button.secondary { background: rgba(15,23,42,.65); }
+    button.good { background: rgba(34,197,94,.14); }
+    button.warn { background: rgba(245,158,11,.14); }
+    button.bad { background: rgba(239,68,68,.14); }
+    button:active { transform: translateY(1px) scale(.997); }
+    .modebar { display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .modebar button.active { outline: 2px solid rgba(124,58,237,.65); background: rgba(124,58,237,.18); }
+    .cardwrap { padding: 14px; }
+    .card { position: relative; overflow: hidden; min-height: 430px; display:flex; flex-direction:column; justify-content:space-between; padding: 0; }
+    .heroart { padding: 18px; background: linear-gradient(135deg, rgba(124,58,237,.26), rgba(56,189,248,.16)); border-bottom: 1px solid var(--line); }
+    .heroart-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .iconbubble { width: 68px; height: 68px; border-radius: 20px; display:grid; place-items:center; font-size: 2rem; background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); }
+    .cardnum { font-size: .9rem; color: var(--muted); }
+    .cat { font-size: .84rem; letter-spacing: .08em; text-transform: uppercase; color: #d8c8ff; }
+    .cardbody { padding: 18px; display:grid; gap: 14px; }
+    .side { padding: 16px; border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid var(--line); }
+    .label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .phrase-en { font-size: clamp(1.15rem, 3vw, 1.5rem); line-height: 1.35; font-weight: 700; }
+    .phrase-ru { font-size: clamp(1.35rem, 3.5vw, 1.85rem); line-height: 1.35; font-weight: 800; }
+    .muted { color: var(--muted); }
+    .audioRow, .actionGrid, .navGrid { display:grid; gap: 10px; }
+    .audioRow, .navGrid { grid-template-columns: repeat(2, 1fr); }
+    .actionGrid { grid-template-columns: repeat(3, 1fr); }
+    .feedback { min-height: 24px; color: #cbd5e1; font-weight:600; }
+    .hidden { display:none !important; }
+    .quizbox { padding: 16px; border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid var(--line); display:grid; gap: 12px; }
+    .options { display:grid; gap:10px; }
+    .options button { text-align:left; font-weight:600; }
+    .footerNote { text-align:center; color: var(--muted); font-size: .87rem; padding: 8px 10px 2px; }
+    .tiny { font-size:.82rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="glass hero">
+      <div class="topline">
+        <div>
+          <h1>Russian Flashcards V2</h1>
+          <div class="sub">Mobile-first, smoother on phones, and less cursed than the first round. Study mode, quiz mode, streaks, progress memory, category art, and tap-to-speak built in.</div>
+        </div>
+        <div class="pill">249 cards</div>
+      </div>
+      <div class="stats">
+        <div class="pill">Seen: <strong id="seenCount">0</strong></div>
+        <div class="pill">Mastered: <strong id="masteredCount">0</strong></div>
+        <div class="pill">Hard: <strong id="hardCount">0</strong></div>
+        <div class="pill">Streak: <strong id="streakCount">0</strong></div>
+      </div>
+    </section>
+
+    <section class="glass controls">
+      <div class="modebar">
+        <button id="modeStudy" class="active">Study</button>
+        <button id="modeQuiz">Quiz</button>
+        <button id="modeReview">Review Hard</button>
+      </div>
+      <div class="row two">
+        <input id="searchInput" type="search" placeholder="Search English or Russian" autocomplete="off" />
+        <select id="categorySelect"></select>
+      </div>
+      <div class="row three">
+        <button id="shuffleBtn" class="secondary">Shuffle</button>
+        <button id="resetFiltersBtn" class="secondary">Reset filters</button>
+        <button id="resetProgressBtn" class="bad">Reset progress</button>
+      </div>
+      <div class="tiny">Best experience: host this folder on Vercel, Netlify, or GitHub Pages. Local mobile files can still be weird because iPhone likes drama.</div>
+    </section>
+
+    <section class="glass cardwrap">
+      <div id="studyCard" class="card glass">
+        <div class="heroart">
+          <div class="heroart-top">
+            <div>
+              <div class="cat" id="cardCategory">Category</div>
+              <div class="sub" id="cardCategoryDesc">Description</div>
+            </div>
+            <div class="iconbubble" id="cardIcon">💬</div>
+          </div>
+        </div>
+        <div class="cardbody">
+          <div class="cardnum" id="cardNumber">Card 1 of 249</div>
+          <div class="side">
+            <div class="label">English</div>
+            <div class="phrase-en" id="englishText"></div>
+          </div>
+          <div class="side">
+            <div class="label">Russian</div>
+            <div class="phrase-ru" id="russianText"></div>
+          </div>
+          <div class="audioRow">
+            <button id="speakEnBtn" class="secondary">🔊 English</button>
+            <button id="speakRuBtn" class="secondary">🔊 Russian</button>
+          </div>
+          <div class="actionGrid">
+            <button id="markSeenBtn" class="secondary">Seen</button>
+            <button id="markHardBtn" class="warn">Hard</button>
+            <button id="markMasteredBtn" class="good">Mastered</button>
+          </div>
+          <div class="navGrid">
+            <button id="prevBtn" class="secondary">← Prev</button>
+            <button id="nextBtn" class="primary">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quizCard" class="card glass hidden">
+        <div class="heroart">
+          <div class="heroart-top">
+            <div>
+              <div class="cat">Quiz mode</div>
+              <div class="sub">Pick the correct translation. Fast reps beat fake motivation.</div>
+            </div>
+            <div class="iconbubble">🧠</div>
+          </div>
+        </div>
+        <div class="cardbody">
+          <div class="quizbox">
+            <div class="label">Prompt</div>
+            <div class="phrase-en" id="quizPrompt"></div>
+            <div class="muted" id="quizDirection">Choose the Russian translation</div>
+          </div>
+          <div class="options" id="quizOptions"></div>
+          <div class="feedback" id="quizFeedback"></div>
+          <div class="navGrid">
+            <button id="quizSkipBtn" class="secondary">Skip</button>
+            <button id="quizNextBtn" class="primary">New question</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footerNote">Offline-friendly static site. Audio uses your device voice engine, so pronunciation quality depends on the browser and installed voices.</div>
+  </div>
+
+<script>
+const cards = [{"id": 1, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I deal with tasks", "russian": "Я решаю задачи"}, {"id": 2, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Sometimes I go to meet with different colleagues", "russian": "Иногда встречаюсь с другими коллегами"}, {"id": 3, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I don’t care", "russian": "Мне всё равно"}, {"id": 4, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "He doesn’t care", "russian": "Ему всё равно"}, {"id": 5, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Can I? / Is it allowed?", "russian": "Можно"}, {"id": 6, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Need to / Necessary", "russian": "Нужно"}, {"id": 7, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "You can’t / Not allowed", "russian": "Нельзя"}, {"id": 8, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "How’s life, what’s new?", "russian": "Как жизнь, что нового?"}, {"id": 9, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Tell me about this", "russian": "Расскажи мне об этом"}, {"id": 10, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "That’s why", "russian": "Поэтому"}, {"id": 11, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Instead", "russian": "Вместо"}, {"id": 12, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "More than", "russian": "Больше чем"}, {"id": 13, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Only in a week", "russian": "Только через неделю"}, {"id": 14, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "On the first sight", "russian": "На первый взгляд"}, {"id": 15, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "But in reality", "russian": "Но на самом деле"}, {"id": 16, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I prefer", "russian": "Я предпочитаю"}, {"id": 17, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Amazing", "russian": "Потрясающе"}, {"id": 18, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I met new people", "russian": "Я встретил новых людей"}, {"id": 19, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I drove to Denver", "russian": "Я ездил в Денвер"}, {"id": 20, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "From 5 to 9", "russian": "С пяти до девяти"}, {"id": 21, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Need to move", "russian": "Надо переехать"}, {"id": 22, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "He wants to move but later", "russian": "Он хочет переехать, но позже"}, {"id": 23, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I went to get a haircut", "russian": "Я ходил на стрижку"}, {"id": 24, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I am growing my hair", "russian": "Я отращиваю волосы"}, {"id": 25, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I fell down", "russian": "Я упал вниз"}, {"id": 26, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I was upside down", "russian": "Я висел вниз ногами"}, {"id": 27, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I crashed into the wall", "russian": "Я ударился об стену"}, {"id": 28, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Always", "russian": "Всегда"}, {"id": 29, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Sometimes", "russian": "Иногда"}, {"id": 30, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Often", "russian": "Часто"}, {"id": 31, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Seldom", "russian": "Редко"}, {"id": 32, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Late", "russian": "Поздно"}, {"id": 33, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Early", "russian": "Рано"}, {"id": 34, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Together", "russian": "Вместе"}, {"id": 35, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Which movie?", "russian": "Какое кино?"}, {"id": 36, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "We ate", "russian": "Мы ели"}, {"id": 37, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "He is not finished", "russian": "Он не закончен"}, {"id": 38, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Have a good weekend!", "russian": "Хороших выходных!"}, {"id": 39, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "See you soon!", "russian": "До встречи!"}, {"id": 40, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "I have a question", "russian": "У меня есть вопрос"}, {"id": 41, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "Two weeks ago", "russian": "Две недели назад"}, {"id": 42, "category_key": "EVERYDAY PHRASES", "category": "Everyday Phrases", "icon": "💬", "category_desc": "Conversation and useful daily chunks", "english": "An app", "russian": "Приложение"}, {"id": 43, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With me", "russian": "Со мной"}, {"id": 44, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With you (informal)", "russian": "С тобой"}, {"id": 45, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With him / with it", "russian": "С ним"}, {"id": 46, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With her", "russian": "С ней"}, {"id": 47, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With you (plural/formal)", "russian": "С вами"}, {"id": 48, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With them", "russian": "С ними"}, {"id": 49, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With us", "russian": "С нами"}, {"id": 50, "category_key": "GRAMMAR — С (WITH)", "category": "Grammar: С (with)", "icon": "🧩", "category_desc": "Pronouns and the preposition с", "english": "With my son", "russian": "С сыном"}, {"id": 51, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Worker / co-worker", "russian": "Сотрудник"}, {"id": 52, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Owner of the company", "russian": "Владелец компании"}, {"id": 53, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "To pay", "russian": "Платить"}, {"id": 54, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Accountant", "russian": "Бухгалтер"}, {"id": 55, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Paperwork", "russian": "Бумажками"}, {"id": 56, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Risk assessment", "russian": "Оценивание рисков"}, {"id": 57, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "National project", "russian": "Национальный проект"}, {"id": 58, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "He will allow us to expand", "russian": "Он позволит увеличить"}, {"id": 59, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Military", "russian": "Военный"}, {"id": 60, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Fame / popular", "russian": "Известность"}, {"id": 61, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "To get", "russian": "Получить"}, {"id": 62, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Mass media", "russian": "СМИ"}, {"id": 63, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Workers", "russian": "Рабочие"}, {"id": 64, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Artificial intelligence", "russian": "Искусственный интеллект"}, {"id": 65, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Build", "russian": "Строил"}, {"id": 66, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Goal", "russian": "Цель"}, {"id": 67, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Inspections, investigations, meetings", "russian": "Инспекции, расследования, совещания"}, {"id": 68, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "Everyday working out", "russian": "Заниматься спортом"}, {"id": 69, "category_key": "WORK & PROFESSIONAL", "category": "Work & Professional", "icon": "💼", "category_desc": "Jobs, work language, and professional vocabulary", "english": "We do sport", "russian": "Занимаемся спортом"}, {"id": 70, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Rock climbing", "russian": "Скалолазание"}, {"id": 71, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Weightlifting", "russian": "Тяжёлая атлетика"}, {"id": 72, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Track and field", "russian": "Лёгкая атлетика"}, {"id": 73, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Gymnastics", "russian": "Гимнастика"}, {"id": 74, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Gym", "russian": "Зал"}, {"id": 75, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Mountain bike", "russian": "Горный велосипед"}, {"id": 76, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "For health", "russian": "Для здоровья"}, {"id": 77, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Outside", "russian": "На улице"}, {"id": 78, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Running on treadmill", "russian": "Беговая дорожка"}, {"id": 79, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Top of the mountain", "russian": "Вершина горы"}, {"id": 80, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Belay", "russian": "Страховать"}, {"id": 81, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "A rope", "russian": "Верёвка"}, {"id": 82, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "On ice", "russian": "На льду"}, {"id": 83, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Mountain", "russian": "Гора"}, {"id": 84, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Small hill / slide", "russian": "Горка"}, {"id": 85, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "To grieve", "russian": "Горевать"}, {"id": 86, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "Legendary", "russian": "Легендарный"}, {"id": 87, "category_key": "SPORTS & HOBBIES", "category": "Sports & Hobbies", "icon": "🏔️", "category_desc": "Activities, fitness, and hobbies", "english": "I prefer rock climbing", "russian": "Я предпочитаю скалолазание"}, {"id": 88, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Symptoms", "russian": "Симптомы"}, {"id": 89, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Cough", "russian": "Кашель"}, {"id": 90, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Runny nose", "russian": "Насморк"}, {"id": 91, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Headache", "russian": "Головная боль"}, {"id": 92, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Medicine", "russian": "Лекарства"}, {"id": 93, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Tea with ginger", "russian": "Чай с имбирём"}, {"id": 94, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "To feel", "russian": "Чувствовать"}, {"id": 95, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "To die / dying / Умереть", "russian": "умирать"}, {"id": 96, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Hair salon", "russian": "Парикмахерская"}, {"id": 97, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Beets", "russian": "Свекла"}, {"id": 98, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Beet salad", "russian": "Винегрет"}, {"id": 99, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Windy weather", "russian": "Ветреная погода"}, {"id": 100, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Comfortable weather", "russian": "Комфортная погода"}, {"id": 101, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Wind", "russian": "Ветер"}, {"id": 102, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "Last year", "russian": "Прошлый год"}, {"id": 103, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "The day before", "russian": "Накануне"}, {"id": 104, "category_key": "HEALTH & ILLNESS", "category": "Health & Illness", "icon": "🩺", "category_desc": "Symptoms, health, and wellness", "english": "In a dream / sleep", "russian": "Во сне"}, {"id": 105, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "To visit", "russian": "Посещать"}, {"id": 106, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Ship", "russian": "Корабль"}, {"id": 107, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Dominican Republic", "russian": "Доминиканская Республика"}, {"id": 108, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Made a stop", "russian": "Делали остановку"}, {"id": 109, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Got out", "russian": "Выходили"}, {"id": 110, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Near the airport", "russian": "Недалеко от аэропорта"}, {"id": 111, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Around all the country", "russian": "По всей стране"}, {"id": 112, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Apartment", "russian": "Квартира"}, {"id": 113, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Private house", "russian": "Частный дом"}, {"id": 114, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "In Asia", "russian": "В Азии"}, {"id": 115, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Light", "russian": "Свет"}, {"id": 116, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "To own the world", "russian": "Владеть миром"}, {"id": 117, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Belief", "russian": "Вера"}, {"id": 118, "category_key": "TRAVEL & PLACES", "category": "Travel & Places", "icon": "✈️", "category_desc": "Travel, homes, and places", "english": "Near the Colorado Springs airport", "russian": "Недалеко от аэропорта Колорадо-Спрингс"}, {"id": 119, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Scientific research", "russian": "Исследования"}, {"id": 120, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Dangerous infections", "russian": "Опасные инфекции"}, {"id": 121, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "To create", "russian": "Создать"}, {"id": 122, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Reliable protection", "russian": "Надёжная защита"}, {"id": 123, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "The most dangerous", "russian": "Самая опасная"}, {"id": 124, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Only", "russian": "Только"}, {"id": 125, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Lab", "russian": "Лаборатория"}, {"id": 126, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Unknown diseases", "russian": "Неизвестные болезни"}, {"id": 127, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "To appear", "russian": "Появиться"}, {"id": 128, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Sanitary", "russian": "Санитарный"}, {"id": 129, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Sanitary services frontline", "russian": "Санитарные службы на передовой"}, {"id": 130, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Top level", "russian": "Высший уровень"}, {"id": 131, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Detecting dangerous viruses", "russian": "Для обнаружения опасных вирусов"}, {"id": 132, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Manufacturing vaccines", "russian": "Изготовление новых вакцин"}, {"id": 133, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Study", "russian": "Изучение"}, {"id": 134, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Biological protection", "russian": "Биологической безопасности"}, {"id": 135, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Large scale", "russian": "Масштабного"}, {"id": 136, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "To isolate", "russian": "Изолировать"}, {"id": 137, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Special", "russian": "Специальный"}, {"id": 138, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Soldiers", "russian": "Солдаты"}, {"id": 139, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Civilians", "russian": "Гражданские"}, {"id": 140, "category_key": "SCIENCE & MEDICINE", "category": "Science & Medicine", "icon": "🧪", "category_desc": "Research, medicine, and safety terms", "english": "Attack", "russian": "Атака"}, {"id": 141, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "To cook", "russian": "Готовить"}, {"id": 142, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Meat and fish", "russian": "Мясо и рыба"}, {"id": 143, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Pork", "russian": "Свинина"}, {"id": 144, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Beef", "russian": "Говядина"}, {"id": 145, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Chicken", "russian": "Курица"}, {"id": 146, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Veal", "russian": "Телятина"}, {"id": 147, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Farmers market", "russian": "Базар"}, {"id": 148, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Sandwich", "russian": "Бутерброд"}, {"id": 149, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Cold borscht", "russian": "Холодный борщ"}, {"id": 150, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Hot tea", "russian": "Горячий чай"}, {"id": 151, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "To cook food", "russian": "Готовить еду"}, {"id": 152, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Give gifts", "russian": "Дарить подарки"}, {"id": 153, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Go be a guest", "russian": "Ходить в гости"}, {"id": 154, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Christmas lights", "russian": "Рождественские огни"}, {"id": 155, "category_key": "FOOD & COOKING", "category": "Food & Cooking", "icon": "🍲", "category_desc": "Food, cooking, and guests", "english": "Parents", "russian": "Родители"}, {"id": 156, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Big comfortable house", "russian": "Большой удобный дом"}, {"id": 157, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Wooden two-storey house", "russian": "Деревянный двухэтажный дом"}, {"id": 158, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Four bedrooms", "russian": "Четыре спальных комнаты"}, {"id": 159, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Living room", "russian": "Гостиная"}, {"id": 160, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Kitchen", "russian": "Кухня"}, {"id": 161, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Bathroom", "russian": "Ванная"}, {"id": 162, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Hallway", "russian": "Прихожая"}, {"id": 163, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Office", "russian": "Офис"}, {"id": 164, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Laundry room", "russian": "Прачечная"}, {"id": 165, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Big yard", "russian": "Большой двор"}, {"id": 166, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Garden", "russian": "Сад"}, {"id": 167, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Pine trees", "russian": "Сосны"}, {"id": 168, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Flower bed", "russian": "Клумба с цветами"}, {"id": 169, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Sofa", "russian": "Диван"}, {"id": 170, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Coffee table", "russian": "Журнальный столик"}, {"id": 171, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Carpet", "russian": "Ковёр"}, {"id": 172, "category_key": "HOME & HOUSE", "category": "Home & House", "icon": "🏡", "category_desc": "Rooms, furniture, and home life", "english": "Air conditioning", "russian": "Кондиционер"}, {"id": 173, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Monday", "russian": "Понедельник"}, {"id": 174, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Tuesday", "russian": "Вторник"}, {"id": 175, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Wednesday", "russian": "Среда"}, {"id": 176, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Thursday", "russian": "Четверг"}, {"id": 177, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Friday", "russian": "Пятница"}, {"id": 178, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Saturday", "russian": "Суббота"}, {"id": 179, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Sunday", "russian": "Воскресенье"}, {"id": 180, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Weekend", "russian": "Выходные"}, {"id": 181, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "January", "russian": "Январь"}, {"id": 182, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "February", "russian": "Февраль"}, {"id": 183, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "March", "russian": "Март"}, {"id": 184, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "April", "russian": "Апрель"}, {"id": 185, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "May", "russian": "Май"}, {"id": 186, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "June", "russian": "Июнь"}, {"id": 187, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "July", "russian": "Июль"}, {"id": 188, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "August", "russian": "Август"}, {"id": 189, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "September", "russian": "Сентябрь"}, {"id": 190, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "October", "russian": "Октябрь"}, {"id": 191, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "November", "russian": "Ноябрь"}, {"id": 192, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "December", "russian": "Декабрь"}, {"id": 193, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Summer", "russian": "Лето"}, {"id": 194, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Winter", "russian": "Зима"}, {"id": 195, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Spring", "russian": "Весна"}, {"id": 196, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Autumn / Fall", "russian": "Осень"}, {"id": 197, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In summer", "russian": "Летом"}, {"id": 198, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In winter", "russian": "Зимой"}, {"id": 199, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In spring", "russian": "Весной"}, {"id": 200, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In autumn", "russian": "Осенью"}, {"id": 201, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Today", "russian": "Сегодня"}, {"id": 202, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Tomorrow", "russian": "Завтра"}, {"id": 203, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Yesterday", "russian": "Вчера"}, {"id": 204, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In the morning", "russian": "Утром"}, {"id": 205, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "In the evening", "russian": "Вечером"}, {"id": 206, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "My birthday", "russian": "Мой день рождения"}, {"id": 207, "category_key": "DAYS, MONTHS & SEASONS", "category": "Days, Months & Seasons", "icon": "🗓️", "category_desc": "Time, dates, and seasons", "english": "Her birthday was last Monday", "russian": "Её день рождения был в прошлый понедельник"}, {"id": 208, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Country", "russian": "Страна"}, {"id": 209, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "North", "russian": "Север"}, {"id": 210, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "South", "russian": "Юг"}, {"id": 211, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "West", "russian": "Запад"}, {"id": 212, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "East", "russian": "Восток"}, {"id": 213, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Europe", "russian": "Европа"}, {"id": 214, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Germany", "russian": "Германия"}, {"id": 215, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "England", "russian": "Англия"}, {"id": 216, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "France", "russian": "Франция"}, {"id": 217, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Spain", "russian": "Испания"}, {"id": 218, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Norway", "russian": "Норвегия"}, {"id": 219, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Sweden", "russian": "Швеция"}, {"id": 220, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Poland", "russian": "Польша"}, {"id": 221, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Ukraine", "russian": "Украина"}, {"id": 222, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Greece", "russian": "Греция"}, {"id": 223, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Mediterranean Sea", "russian": "Средиземное море"}, {"id": 224, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Black Sea", "russian": "Чёрное море"}, {"id": 225, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Pacific Ocean", "russian": "Тихий океан"}, {"id": 226, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Atlantic Ocean", "russian": "Атлантический океан"}, {"id": 227, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "I want to visit Iceland", "russian": "Я хочу поехать в Исландию"}, {"id": 228, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "They are allies", "russian": "Они союзники"}, {"id": 229, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "Buffet", "russian": "Шведский стол"}, {"id": 230, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "To adore", "russian": "Обожать"}, {"id": 231, "category_key": "COUNTRIES & GEOGRAPHY", "category": "Countries & Geography", "icon": "🌍", "category_desc": "Places, countries, and geography", "english": "I really liked it", "russian": "Мне понравилось очень сильно"}, {"id": 232, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To go on foot (one way) / Идти", "russian": "я иду"}, {"id": 233, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To go on foot (regularly) / Ходить", "russian": "я хожу"}, {"id": 234, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To go by transport (one way) / Ехать", "russian": "я еду"}, {"id": 235, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To go by transport (regularly) / Ездить", "russian": "я езжу"}, {"id": 236, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To run (one direction)", "russian": "Бежать"}, {"id": 237, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To walk on foot", "russian": "Ходить пешком"}, {"id": 238, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To return", "russian": "Возвращаться"}, {"id": 239, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To rest / relax", "russian": "Отдыхать"}, {"id": 240, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To stroll / walk", "russian": "Гулять"}, {"id": 241, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "Library", "russian": "Библиотека"}, {"id": 242, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "Shop", "russian": "Магазин"}, {"id": 243, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "City centre", "russian": "Центр города"}, {"id": 244, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To drive someone", "russian": "Возить"}, {"id": 245, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To drop off", "russian": "Отвозить"}, {"id": 246, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "Night", "russian": "Ночью"}, {"id": 247, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "To search / I search / Искать", "russian": "я ищу"}, {"id": 248, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "You search", "russian": "Ты ищешь"}, {"id": 249, "category_key": "MOVEMENT VERBS", "category": "Movement Verbs", "icon": "🚶", "category_desc": "Core movement verbs and places", "english": "He searches", "russian": "Он ищет"}];
+const STORAGE_KEY = 'russian-flashcards-v2-progress';
+const todayKey = () => new Date().toISOString().slice(0,10);
+const state = {
+  mode: 'study',
+  cards: cards,
+  filtered: [...cards],
+  idx: 0,
+  category: 'all',
+  search: '',
+  progress: loadProgress(),
+  quiz: null,
+};
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { seen: {}, hard: {}, mastered: {}, quizCorrect: 0, streakDays: [], lastActive: null };
+  } catch {
+    return { seen: {}, hard: {}, mastered: {}, quizCorrect: 0, streakDays: [], lastActive: null };
+  }
+}
+function saveProgress() {
+  stampActiveDay();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+  updateStats();
+}
+function stampActiveDay() {
+  const tk = todayKey();
+  const arr = new Set(state.progress.streakDays || []);
+  arr.add(tk);
+  state.progress.streakDays = Array.from(arr).sort();
+  state.progress.lastActive = tk;
+}
+function calculateStreak() {
+  const days = (state.progress.streakDays || []).slice().sort();
+  if (!days.length) return 0;
+  const set = new Set(days);
+  let streak = 0;
+  let d = new Date();
+  for (;;) {
+    const key = d.toISOString().slice(0,10);
+    if (set.has(key)) { streak++; d.setDate(d.getDate()-1); } else {
+      if (streak === 0) { d.setDate(d.getDate()-1); if (set.has(d.toISOString().slice(0,10))) { streak++; d.setDate(d.getDate()-1); continue; } }
+      break;
+    }
+  }
+  return streak;
+}
+function updateStats() {
+  document.getElementById('seenCount').textContent = Object.keys(state.progress.seen || {}).length;
+  document.getElementById('masteredCount').textContent = Object.keys(state.progress.mastered || {}).length;
+  document.getElementById('hardCount').textContent = Object.keys(state.progress.hard || {}).length;
+  document.getElementById('streakCount').textContent = calculateStreak();
+}
+function uniqueCategories() {
+  const map = new Map();
+  cards.forEach(c => { if (!map.has(c.category)) map.set(c.category, c); });
+  return Array.from(map.values());
+}
+function populateCategories() {
+  const select = document.getElementById('categorySelect');
+  select.innerHTML = '<option value="all">All categories</option>' + uniqueCategories().map(c => `<option value="${escapeHtml(c.category)}">${escapeHtml(c.icon)} ${escapeHtml(c.category)}</option>`).join('');
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function applyFilters() {
+  const q = state.search.trim().toLowerCase();
+  state.filtered = state.cards.filter(c => {
+    const matchesCategory = state.category === 'all' || c.category === state.category;
+    const matchesSearch = !q || c.english.toLowerCase().includes(q) || c.russian.toLowerCase().includes(q);
+    const matchesMode = state.mode !== 'review' || state.progress.hard[c.id];
+    return matchesCategory && matchesSearch && matchesMode;
+  });
+  if (!state.filtered.length) state.idx = 0; else if (state.idx >= state.filtered.length) state.idx = 0;
+  render();
+}
+function currentCard() { return state.filtered[state.idx] || null; }
+function render() {
+  updateStats();
+  document.getElementById('modeStudy').classList.toggle('active', state.mode==='study');
+  document.getElementById('modeQuiz').classList.toggle('active', state.mode==='quiz');
+  document.getElementById('modeReview').classList.toggle('active', state.mode==='review');
+  document.getElementById('studyCard').classList.toggle('hidden', state.mode==='quiz');
+  document.getElementById('quizCard').classList.toggle('hidden', state.mode!=='quiz');
+  if (state.mode === 'quiz') {
+    renderQuiz();
+    return;
+  }
+  const card = currentCard();
+  const empty = !card;
+  document.getElementById('englishText').textContent = empty ? 'No cards match your filter.' : card.english;
+  document.getElementById('russianText').textContent = empty ? 'Try a different search or category.' : card.russian;
+  document.getElementById('cardNumber').textContent = empty ? '0 cards found' : `Card ${state.idx+1} of ${state.filtered.length} · #${card.id}`;
+  document.getElementById('cardCategory').textContent = empty ? 'Nothing here' : card.category;
+  document.getElementById('cardCategoryDesc').textContent = empty ? 'Reset filters and try again.' : card.category_desc;
+  document.getElementById('cardIcon').textContent = empty ? '🫠' : card.icon;
+}
+function mark(type) {
+  const c = currentCard();
+  if (!c) return;
+  state.progress[type][c.id] = true;
+  if (type === 'mastered') delete state.progress.hard[c.id];
+  saveProgress();
+}
+function unmark(type,id) { delete state.progress[type][id]; saveProgress(); }
+function shuffleFiltered() {
+  for (let i = state.filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.filtered[i], state.filtered[j]] = [state.filtered[j], state.filtered[i]];
+  }
+  state.idx = 0;
+  render();
+}
+function nextCard() { if (!state.filtered.length) return; state.idx = (state.idx + 1) % state.filtered.length; mark('seen'); render(); }
+function prevCard() { if (!state.filtered.length) return; state.idx = (state.idx - 1 + state.filtered.length) % state.filtered.length; render(); }
+function getVoices() { return speechSynthesis.getVoices(); }
+function speak(text, lang) {
+  if (!('speechSynthesis' in window)) return alert('Speech is not supported in this browser.');
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  const voices = getVoices();
+  const preferred = voices.find(v => v.lang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]));
+  if (preferred) utter.voice = preferred;
+  utter.rate = lang.startsWith('ru') ? 0.9 : 0.98;
+  speechSynthesis.speak(utter);
+}
+function makeQuiz() {
+  const pool = state.filtered.length ? state.filtered : state.cards;
+  const card = pool[Math.floor(Math.random() * pool.length)];
+  const askRussian = Math.random() < 0.5;
+  const prompt = askRussian ? card.russian : card.english;
+  const correct = askRussian ? card.english : card.russian;
+  const field = askRussian ? 'english' : 'russian';
+  const distractors = pool.filter(c => c.id !== card.id).sort(() => Math.random() - 0.5).slice(0,3).map(c => c[field]);
+  const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
+  state.quiz = { card, askRussian, prompt, correct, options, answered: false };
+}
+function renderQuiz() {
+  if (!state.quiz) makeQuiz();
+  const q = state.quiz;
+  document.getElementById('quizPrompt').textContent = q.prompt;
+  document.getElementById('quizDirection').textContent = q.askRussian ? 'Choose the English translation' : 'Choose the Russian translation';
+  const box = document.getElementById('quizOptions');
+  box.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'secondary';
+    btn.textContent = opt;
+    btn.onclick = () => answerQuiz(opt, btn);
+    box.appendChild(btn);
+  });
+  document.getElementById('quizFeedback').textContent = '';
+}
+function answerQuiz(opt, btn) {
+  const q = state.quiz;
+  if (!q || q.answered) return;
+  q.answered = true;
+  mark('seen');
+  if (opt === q.correct) {
+    btn.className = 'good';
+    document.getElementById('quizFeedback').textContent = `Correct. #${q.card.id}`; 
+    state.progress.quizCorrect = (state.progress.quizCorrect || 0) + 1;
+    mark('mastered');
+  } else {
+    btn.className = 'bad';
+    document.getElementById('quizFeedback').textContent = `Nope. Correct answer: ${q.correct}`;
+    mark('hard');
+    Array.from(document.getElementById('quizOptions').children).forEach(el => { if (el.textContent === q.correct) el.className = 'good'; });
+  }
+  saveProgress();
+}
+
+populateCategories();
+updateStats();
+applyFilters();
+
+const byId = id => document.getElementById(id);
+byId('searchInput').addEventListener('input', e => { state.search = e.target.value; applyFilters(); });
+byId('categorySelect').addEventListener('change', e => { state.category = e.target.value; applyFilters(); });
+byId('shuffleBtn').onclick = shuffleFiltered;
+byId('resetFiltersBtn').onclick = () => { state.search=''; state.category='all'; byId('searchInput').value=''; byId('categorySelect').value='all'; applyFilters(); };
+byId('resetProgressBtn').onclick = () => { if (confirm('Reset all saved progress?')) { localStorage.removeItem(STORAGE_KEY); state.progress = loadProgress(); applyFilters(); } };
+byId('modeStudy').onclick = () => { state.mode='study'; applyFilters(); };
+byId('modeQuiz').onclick = () => { state.mode='quiz'; state.quiz=null; render(); };
+byId('modeReview').onclick = () => { state.mode='review'; applyFilters(); };
+byId('nextBtn').onclick = nextCard;
+byId('prevBtn').onclick = prevCard;
+byId('markSeenBtn').onclick = () => mark('seen');
+byId('markHardBtn').onclick = () => mark('hard');
+byId('markMasteredBtn').onclick = () => mark('mastered');
+byId('speakEnBtn').onclick = () => { const c=currentCard(); if (c) speak(c.english,'en-US'); };
+byId('speakRuBtn').onclick = () => { const c=currentCard(); if (c) speak(c.russian,'ru-RU'); };
+byId('quizNextBtn').onclick = () => { state.quiz = null; renderQuiz(); };
+byId('quizSkipBtn').onclick = () => { state.quiz = null; renderQuiz(); };
+window.addEventListener('keydown', e => {
+  if (state.mode === 'quiz') return;
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft') prevCard();
+});
+if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
+</script>
+</body>
+</html>
